@@ -4,7 +4,27 @@ import sqlite3
 from datetime import datetime
 
 
-def create_player_table(players):
+def drop_all_tables():
+    conn = sqlite3.connect('football.sqlite')
+    cur = conn.cursor()
+    cur.execute('DROP TABLE IF EXISTS rosters')
+    cur.execute('DROP TABLE IF EXISTS stacks')
+    cur.execute('DROP TABLE IF EXISTS players')
+    cur.execute('DROP TABLE IF EXISTS last_update')
+    cur.execute('DROP TABLE IF EXISTS qb_dst')
+    cur.execute('DROP TABLE IF EXISTS flex')
+    return True
+
+
+def drop_one_table(table):
+    conn = sqlite3.connect('football.sqlite')
+    cur = conn.cursor()
+    cur.execute('DROP TABLE IF EXISTS "' + table + '"')
+    return True
+
+
+
+def write_player_table(players):
     temp_player_array = []
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
@@ -30,7 +50,7 @@ def create_player_table(players):
     conn.commit()
 
 
-def create_qb_dst_combo_table(qb_dst):
+def write_qb_dst_combo_table(qb_dst):
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS qb_dst')
@@ -52,7 +72,7 @@ def create_qb_dst_combo_table(qb_dst):
     conn.commit()
 
 
-def create_flex_combo_table(flex):
+def write_flex_combo_table(flex):
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS flex')
@@ -81,7 +101,7 @@ def create_flex_combo_table(flex):
     conn.commit()
 
 
-def create_rosters_table():
+def write_rosters_table():
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS rosters')
@@ -106,7 +126,7 @@ def create_rosters_table():
                        ''')
 
 
-def create_last_update_table():
+def write_last_update_table():
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS last_update')
@@ -117,31 +137,7 @@ def create_last_update_table():
     conn.commit()
 
 
-# def initialize_current_table(qb, dst):
-#     conn = sqlite3.connect('football.sqlite')
-#     cur = conn.cursor()
-#     where_clause = ""
-#     if qb != "" and dst != "":
-#         where_clause = "WHERE qb = '" + qb + "' AND dst = '" + dst + "'"
-#     print("")
-#     print("Initializing a local table to include " + qb + " and " + dst + ".  This may take some time...")
-#     cur.execute('DROP TABLE IF EXISTS current')
-#     cur.execute('DROP TABLE IF EXISTS included_players')
-#     cur.execute('DROP TABLE IF EXISTS excluded_players')
-#     cur.execute("CREATE TABLE current AS SELECT * FROM rosters " + where_clause).fetchall()
-#     cur.execute('''
-#     CREATE TABLE included_players (
-#         "name" TEXT
-#     )
-#     ''')
-#     cur.execute('''
-#     CREATE TABLE excluded_players (
-#         "name" TEXT
-#     )
-#     ''')
-
-
-def create_stacks_table(qb, dst, inc, exc):
+def write_stacks_table(qb, dst, inc, exc):
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
     from_clause = "SELECT * FROM rosters "
@@ -159,7 +155,7 @@ def create_stacks_table(qb, dst, inc, exc):
             where_clause = where_clause + ' AND "' + element + '" NOT IN (rb1, rb2, wr1, wr2, wr3, te, fx)'
 
     select_statement = from_clause + where_clause
-    cur.execute('DROP TABLE IF EXISTS stacks')
+    drop_one_table("stacks")
     cur.execute("CREATE TABLE stacks AS " + select_statement).fetchall()
     return "The stacks have been built, select 'Get Statistics' button to see results"
 

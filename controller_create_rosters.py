@@ -2,6 +2,8 @@ from itertools import combinations
 from model_combo_flex import FlexCombo
 from model_combo_qbdst import QbDstCombo
 from model_player import Player
+from controller_db_write import *
+from controller_timer import *
 import csv
 
 
@@ -126,3 +128,38 @@ def set_four_wr_combos(max_budget, te_array, rb_array, wr_array):
                     temp.append(FlexCombo(rb1, rb2, wr1, wr2, wr3, te1, fx))
 
     return temp
+
+
+def create_rosters_table():
+    print("Building a rosters table from the players.csv file...")
+    drop_all_tables()
+    players = read_player_csv()
+    write_player_table(players)
+    print("Flex combinations are being generated...")
+    wr_array = set_position_array("WR", players)
+    rb_array = set_position_array("RB", players)
+    te_array = set_position_array("TE", players)
+    two_te = create_combinations(te_array, 2)
+    two_rb = create_combinations(rb_array, 2)
+    three_rb = create_combinations(rb_array, 3)
+    three_wr = create_combinations(wr_array, 3)
+    four_wr = create_combinations(wr_array, 4)
+    qb_dst_combos = set_qb_dst(set_position_array("QB", players), set_position_array("DST", players))
+    max_budget = set_max_budget(qb_dst_combos)
+    two_te_combos = set_two_te_combos(max_budget, two_te, two_rb, three_wr)
+    three_rb_combos = set_three_rb_combos(max_budget, te_array, three_rb, three_wr)
+    four_wr_combos = set_four_wr_combos(max_budget, te_array, two_rb, four_wr)
+    flex_combos = two_te_combos + three_rb_combos + four_wr_combos
+    potential_rosters = len(flex_combos) * len(qb_dst_combos)
+    low_time = estimate_time("low", potential_rosters)
+    high_time = estimate_time("high", potential_rosters)
+    print("Not accounting for salary, there are potentially " + str(
+        potential_rosters) + " combinations- estimated time is between " + str(low_time) + " and " + str(
+        high_time) + " seconds...")
+    write_qb_dst_combo_table(qb_dst_combos)
+    write_flex_combo_table(flex_combos)
+    write_rosters_table()
+    write_last_update_table()
+    return True
+
+

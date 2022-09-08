@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Style
 from controller_create_rosters import *
+from controller_create_stacks import *
 from controller_db_read import *
-from controller_db_delete import *
 from controller_db_write import *
 from controller_timer import *
 import time
@@ -46,35 +46,7 @@ def run_program():
     def create_rosters():
         output_line1_var.set("")
         start = time.time()
-        print("Building a rosters table from the players.csv file...")
-        drop_tables_if_exists()
-        players = read_player_csv()
-        create_player_table(players)
-        print("Flex combinations are being generated...")
-        wr_array = set_position_array("WR", players)
-        rb_array = set_position_array("RB", players)
-        te_array = set_position_array("TE", players)
-        two_te = create_combinations(te_array, 2)
-        two_rb = create_combinations(rb_array, 2)
-        three_rb = create_combinations(rb_array, 3)
-        three_wr = create_combinations(wr_array, 3)
-        four_wr = create_combinations(wr_array, 4)
-        qb_dst_combos = set_qb_dst(set_position_array("QB", players), set_position_array("DST", players))
-        max_budget = set_max_budget(qb_dst_combos)
-        two_te_combos = set_two_te_combos(max_budget, two_te, two_rb, three_wr)
-        three_rb_combos = set_three_rb_combos(max_budget, te_array, three_rb, three_wr)
-        four_wr_combos = set_four_wr_combos(max_budget, te_array, two_rb, four_wr)
-        flex_combos = two_te_combos + three_rb_combos + four_wr_combos
-        potential_rosters = len(flex_combos) * len(qb_dst_combos)
-        low_time = estimate_time("low", potential_rosters)
-        high_time = estimate_time("high", potential_rosters)
-        print("Not accounting for salary, there are potentially " + str(
-            potential_rosters) + " combinations- estimated time is between " + str(low_time) + " and " + str(
-            high_time) + " seconds...")
-        create_qb_dst_combo_table(qb_dst_combos)
-        create_flex_combo_table(flex_combos)
         create_rosters_table()
-        create_last_update_table()
         last_updated_var.set("Last Updated: " + str(get_last_updated() + "    "))
         player_list_var.set(show_players_as_list())
         number_of_rosters_var.set("Number of Rosters:      ")
@@ -90,7 +62,7 @@ def run_program():
         print("Getting the Statistics")
         start = time.time()
         table = "rosters"
-        if check_stacks_table():
+        if table_exists("stacks"):
             table = "stacks"
         number_of_rosters_var.set("Number of Rosters:      " + str(get_count(table)))
         number_of_players_var.set("Number of Players:      " + str(get_count("players")))
@@ -102,34 +74,30 @@ def run_program():
         output_line1_var.set(output_message)
         print(output_message)
 
-    def get_stacks():
+    def create_stacks():
         print("Building the Stacks")
+        if not table_exists("rosters"):
+            output_statement = "There are no tables"
+            print(output_statement)
+            output_line1_var.set(output_statement)
+            return False
         start = time.time()
-        included_player_numbers = []
-        excluded_player_numbers = []
-        included_players = []
-        excluded_players = []
         quarterback = ""
         dst = ""
-        players = get_players_from_table()
+        included_player_numbers = []
+        excluded_player_numbers = []
 
         if quarterback_entry.get():
-            quarterback = players[int(quarterback_entry.get()) - 1]
+            quarterback = int(quarterback_entry.get()) - 1
         if dst_entry.get():
-            dst = players[int(dst_entry.get()) - 1]
+            dst = int(dst_entry.get()) - 1
         if include_players_entry.get():
             included_player_numbers = include_players_entry.get().split(", ")
         if exclude_players_entry.get():
             excluded_player_numbers = exclude_players_entry.get().split(", ")
-
-        for element in included_player_numbers:
-            included_players.append(players[int(element) - 1])
-        for element in excluded_player_numbers:
-            excluded_players.append(players[int(element) - 1])
-
-        create_stacks_table(quarterback, dst, included_players, excluded_players)
+        success = create_stacks_table(quarterback, dst, included_player_numbers, excluded_player_numbers)
         now = time.time()
-        if quarterback == "":
+        if not success:
             output_statement = "You must select a quarterback to build a stack"
         else:
             output_statement = "  This script took " + get_time(start, now) + " seconds to build all valid stacks."
@@ -138,7 +106,7 @@ def run_program():
         print(output_statement)
 
     def write_stacks():
-        if check_stacks_table():
+        if table_exists("stacks"):
             start = time.time()
             write_rosters_to_csv()
             now = time.time()
@@ -153,7 +121,7 @@ def run_program():
 
     create_rosters_button = ttk.Button(root, text="Reset Rosters", style='W.TButton', command=create_rosters)
     get_statistics_button = ttk.Button(root, text="Get Statistics", style='W.TButton', command=get_statistics)
-    build_stacks_button = ttk.Button(root, text="Build Stacks", style='W.TButton', command=get_stacks)
+    build_stacks_button = ttk.Button(root, text="Build Stacks", style='W.TButton', command=create_stacks)
     filter_players_button = ttk.Button(root, text="Write CSV File", style='W.TButton', command=write_stacks)
 
     output_line1_label.grid(row=0, column=0)
