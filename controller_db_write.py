@@ -23,7 +23,6 @@ def drop_one_table(table):
     return True
 
 
-
 def write_player_table(players):
     temp_player_array = []
     conn = sqlite3.connect('football.sqlite')

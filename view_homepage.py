@@ -43,16 +43,19 @@ def run_program():
     exclude_players_label = Label(root, text="Players that must be excluded:")
     output_line1_label = Label(root, textvariable=output_line1_var, padx=10, pady=20)
 
+    def clear_stats_view():
+        number_of_rosters_var.set("Number of Rosters:      ")
+        max_ratio_var.set("Highest Ratio:      ")
+        max_projection_var.set("Highest Projection:      ")
+
     def create_rosters():
         output_line1_var.set("")
         start = time.time()
+        clear_stats_view()
         create_rosters_table()
-        last_updated_var.set("Last Updated: " + str(get_last_updated() + "    "))
-        player_list_var.set(show_players_as_list())
-        number_of_rosters_var.set("Number of Rosters:      ")
+        last_updated_var.set(get_last_updated())
         number_of_players_var.set("Number of Players:      " + str(get_count("players")))
-        max_ratio_var.set("Highest Ratio:      ")
-        max_projection_var.set("Highest Projection:      ")
+        player_list_var.set(show_players_as_list())
         now = time.time()
         output_statement = "It took " + get_time(start, now) + " seconds to write all the valid rosters to the database"
         output_line1_var.set(output_statement)
@@ -60,6 +63,7 @@ def run_program():
 
     def get_statistics():
         print("Getting the Statistics")
+        clear_stats_view()
         start = time.time()
         table = "rosters"
         if table_exists("stacks"):
@@ -76,6 +80,7 @@ def run_program():
 
     def create_stacks():
         print("Building the Stacks")
+        clear_stats_view()
         if not table_exists("rosters"):
             output_statement = "There are no tables"
             print(output_statement)
@@ -106,6 +111,7 @@ def run_program():
         print(output_statement)
 
     def write_stacks():
+        clear_stats_view()
         if table_exists("stacks"):
             start = time.time()
             write_rosters_to_csv()
