@@ -79,11 +79,11 @@ def get_players_from_table():
     return players
 
 
-def check_current_table():
+def check_stacks_table():
     conn = sqlite3.connect('football.sqlite')
     c = conn.cursor()
     # get the count of tables with the name
-    c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='current' ''')
+    c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='stacks' ''')
     if c.fetchone()[0] == 1:
         return True
     else:

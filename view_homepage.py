@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Style
 from controller_create_rosters import *
-from controller_build_stack import *
 from controller_db_read import *
 from controller_db_delete import *
 from controller_db_write import *
@@ -83,16 +82,16 @@ def run_program():
         max_ratio_var.set("Highest Ratio:      ")
         max_projection_var.set("Highest Projection:      ")
         now = time.time()
-        output_message = "It took " + get_time(start, now) + " seconds to write all the valid rosters to the database"
-        output_line1_var.set(output_message)
-        print(output_message)
+        output_statement = "It took " + get_time(start, now) + " seconds to write all the valid rosters to the database"
+        output_line1_var.set(output_statement)
+        print(output_statement)
 
     def get_statistics():
-        print("Getting the statistics")
+        print("Getting the Statistics")
         start = time.time()
         table = "rosters"
-        if check_current_table():
-            table = "current"
+        if check_stacks_table():
+            table = "stacks"
         number_of_rosters_var.set("Number of Rosters:      " + str(get_count(table)))
         number_of_players_var.set("Number of Players:      " + str(get_count("players")))
         player_list_var.set(show_players_as_list())
@@ -103,29 +102,47 @@ def run_program():
         output_line1_var.set(output_message)
         print(output_message)
 
-    def build_stacks():
+    def get_stacks():
+        print("Building the Stacks")
+        start = time.time()
         included_player_numbers = []
         excluded_player_numbers = []
-        players = get_players_from_table()
+        included_players = []
+        excluded_players = []
         quarterback = ""
         dst = ""
+        players = get_players_from_table()
+
         if quarterback_entry.get():
             quarterback = players[int(quarterback_entry.get()) - 1]
         if dst_entry.get():
             dst = players[int(dst_entry.get()) - 1]
-
-        initialize_current_table(quarterback, dst)
-
         if include_players_entry.get():
             included_player_numbers = include_players_entry.get().split(", ")
         if exclude_players_entry.get():
             excluded_player_numbers = exclude_players_entry.get().split(", ")
-        if check_current_table():
-            output_line1_var.set(build_stack(included_player_numbers, excluded_player_numbers))
+
+        for element in included_player_numbers:
+            included_players.append(players[int(element) - 1])
+        for element in excluded_player_numbers:
+            excluded_players.append(players[int(element) - 1])
+
+        create_stacks_table(quarterback, dst, included_players, excluded_players)
+        now = time.time()
+        if quarterback == "":
+            output_statement = "You must select a quarterback to build a stack"
+        else:
+            output_statement = "  This script took " + get_time(start, now) + " seconds to build all valid stacks."
+
+        output_line1_var.set(output_statement)
+        print(output_statement)
 
     def write_stacks():
-        if check_current_table():
-            output_statement = write_rosters_to_csv()
+        if check_stacks_table():
+            start = time.time()
+            write_rosters_to_csv()
+            now = time.time()
+            output_statement = "  This script took " + get_time(start, now) + " seconds to write the CSV file."
         else:
             output_statement = "There are no stacks to write"
         output_line1_var.set(output_statement)
@@ -136,7 +153,7 @@ def run_program():
 
     create_rosters_button = ttk.Button(root, text="Reset Rosters", style='W.TButton', command=create_rosters)
     get_statistics_button = ttk.Button(root, text="Get Statistics", style='W.TButton', command=get_statistics)
-    build_stacks_button = ttk.Button(root, text="Build Stacks", style='W.TButton', command=build_stacks)
+    build_stacks_button = ttk.Button(root, text="Build Stacks", style='W.TButton', command=get_stacks)
     filter_players_button = ttk.Button(root, text="Write CSV File", style='W.TButton', command=write_stacks)
 
     output_line1_label.grid(row=0, column=0)

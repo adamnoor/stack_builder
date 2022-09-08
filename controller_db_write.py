@@ -117,96 +117,51 @@ def create_last_update_table():
     conn.commit()
 
 
-def initialize_current_table(qb, dst):
+# def initialize_current_table(qb, dst):
+#     conn = sqlite3.connect('football.sqlite')
+#     cur = conn.cursor()
+#     where_clause = ""
+#     if qb != "" and dst != "":
+#         where_clause = "WHERE qb = '" + qb + "' AND dst = '" + dst + "'"
+#     print("")
+#     print("Initializing a local table to include " + qb + " and " + dst + ".  This may take some time...")
+#     cur.execute('DROP TABLE IF EXISTS current')
+#     cur.execute('DROP TABLE IF EXISTS included_players')
+#     cur.execute('DROP TABLE IF EXISTS excluded_players')
+#     cur.execute("CREATE TABLE current AS SELECT * FROM rosters " + where_clause).fetchall()
+#     cur.execute('''
+#     CREATE TABLE included_players (
+#         "name" TEXT
+#     )
+#     ''')
+#     cur.execute('''
+#     CREATE TABLE excluded_players (
+#         "name" TEXT
+#     )
+#     ''')
+
+
+def create_stacks_table(qb, dst, inc, exc):
     conn = sqlite3.connect('football.sqlite')
     cur = conn.cursor()
-    where_clause = ""
-    if qb != "" and dst != "":
-        where_clause = "WHERE qb = '" + qb + "' AND dst = '" + dst + "'"
-    print("")
-    print("Initializing a local table to include " + qb + " and " + dst + ".  This may take some time...")
-    cur.execute('DROP TABLE IF EXISTS current')
-    cur.execute('DROP TABLE IF EXISTS included_players')
-    cur.execute('DROP TABLE IF EXISTS excluded_players')
-    cur.execute("CREATE TABLE current AS SELECT * FROM rosters " + where_clause).fetchall()
-    cur.execute('''
-    CREATE TABLE included_players (
-        "name" TEXT
-    )
-    ''')
-    cur.execute('''
-    CREATE TABLE excluded_players (
-        "name" TEXT
-    )
-    ''')
+    from_clause = "SELECT * FROM rosters "
+    if qb == "":
+        return "A quarterback selection is required to build a stack"
+    where_clause = " WHERE qb = '" + qb + "'"
+    if dst != "":
+        where_clause = where_clause + ' AND dst = "' + dst + '"'
+    if inc:
+        for element in inc:
+            where_clause = where_clause + ' AND "' + element + '" IN (rb1, rb2, wr1, wr2, wr3, te, fx)'
 
+    if exc:
+        for element in exc:
+            where_clause = where_clause + ' AND "' + element + '" NOT IN (rb1, rb2, wr1, wr2, wr3, te, fx)'
 
-def add_to_table(table_name, plyr_list):
-    conn = sqlite3.connect('football.sqlite')
-    cur = conn.cursor()
-    # print("Getting a list of players to " + type + "...")
-    cur.execute('DROP TABLE IF EXISTS ' + table_name)
-    cur.execute('''
-    CREATE TABLE ''' + table_name + ''' (
-        "name" TEXT
-    )
-    ''')
-    insert_records = "INSERT INTO " + table_name + " (name) VALUES(?)"
-    cur.executemany(insert_records, [plyr_list[len(plyr_list) - 1]])
-    conn.commit()
-    print("Currently processing " + str(plyr_list[len(plyr_list) - 1][0]))
-
-
-def filter_array(incl_players, excl_players):
-    conn = sqlite3.connect('football.sqlite')
-    cur = conn.cursor()
-    select_statement = '''
-    SELECT 
-    qb, rb1, rb2, wr1, wr2, wr3, te, fx, dst, budget, projection, ratio 
-    FROM current
-    WHERE budget <= ''' + str(50000) + '''  
-    '''
-
-    if len(incl_players) > 0:
-        select_statement = select_statement + '''AND EXISTS ( SELECT name FROM included_players WHERE name = QB OR 
-        name = RB1 or name = RB2 or name = WR1 or name = WR2 or name = WR3 or name = TE or name = FX or name = DST) '''
-
-    if len(excl_players) > 0:
-        select_statement = select_statement + '''AND NOT EXISTS ( SELECT name FROM excluded_players WHERE name = QB 
-        OR name = RB1 or name = RB2 or name = WR1 or name = WR2 or name = WR3 or name = TE or name = FX or name = 
-        DST) '''
-
-    select_statement = "WITH t AS (" + select_statement + ") SELECT qb, rb1, rb2, wr1, wr2, wr3, te, fx, dst, " \
-                                                          "budget, projection, ratio FROM t "
-    all_rosters = cur.execute(select_statement).fetchall()
-
-    if len(all_rosters) > 1:
-        cur.execute('DROP TABLE IF EXISTS current')
-        cur.execute('''
-        CREATE TABLE current (
-            "qb" TEXT,
-            "rb1" TEXT,
-            "rb2" TEXT,
-            "wr1" TEXT,
-            "wr2" TEXT,
-            "wr3" TEXT,
-            "te" TEXT,
-            "fx" TEXT,
-            "dst" TEXT,
-            "budget" REAL,
-            "projection" REAL,
-            "ratio" REAL
-        )
-        ''')
-
-        insert_records = "INSERT INTO current (qb, rb1, rb2, wr1, wr2, wr3, te, fx, dst, budget, projection, " \
-                         "ratio) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-        cur.executemany(insert_records, all_rosters)
-        conn.commit()
-        return True
-    else:
-        print("This restriction doesn't yield any rosters.  Try again.")
-        return False
+    select_statement = from_clause + where_clause
+    cur.execute('DROP TABLE IF EXISTS stacks')
+    cur.execute("CREATE TABLE stacks AS " + select_statement).fetchall()
+    return "The stacks have been built, select 'Get Statistics' button to see results"
 
 
 def write_rosters_to_csv():
@@ -216,7 +171,7 @@ def write_rosters_to_csv():
     new_path = r'output_files'
     if not os.path.exists(new_path):
         os.makedirs(new_path)
-    cur.execute("SELECT * from current ORDER BY ratio DESC")
+    cur.execute("SELECT * from stacks ORDER BY ratio DESC")
     path = "output_files/Final_Roster_" + str(now) + ".csv"
     with open(path, "w") as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=",")
