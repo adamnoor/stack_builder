@@ -73,7 +73,7 @@ The user interface for this application is a simple column of basic widgets usin
   - A label to let users know the results when a function has completed
   - A button to allow users to create the rosters table in a database from the players.csv file
   - A label to let users know the last time the rosters table was updated
-  - A button to allow users to get statistics from the latest filter done by the user showing
+  - A button to allow users to get statistics from the latest filter done by the user
   - A label showing the statistic: Number of combinations
   - A label showing the statistic: Highest ratio
   - A label showing the statistic: Highest projection
@@ -83,7 +83,8 @@ The user interface for this application is a simple column of basic widgets usin
   - A textfield to let users input any RB, WR or TE to exclude in the filtered combinations
   - A button to let users filter the rosters table based on the user inputs
   - A button to let users write the filtered combinations to a CSV file
-  - A label showing all of the players that exist on the players.csv file
+  - A label showing the number of players that exist of the players.csv file
+  - A label showing a list of all the names of the players that exist on the players.csv file with an id that can be used for the user to filter
 
 
 
