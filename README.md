@@ -68,7 +68,9 @@ The user is able to filter the rosters table once it exists by selecting a qb, a
 
 ## User Interface
 
-The user interface for this application is a simple column of basic widgets using tkinter.  A widgets used are:
+The user interface for this application is a simple column of basic widgets using tkinter.
+
+- The widgets used are:
 
   - A label to let users know the results when a function has completed
   - A button to allow users to create the rosters table in a database from the players.csv file
