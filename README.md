@@ -53,7 +53,7 @@ When the user selects the button to create the database, a table named rosters m
 - The “te” column must contain one player_id associated with a position of TE
 - The “dst” column must contain one player_id associated with a position of DST
 - The “fx” column must contain one player_id associated with a position of RB, WR or TE
-- The “budget” column must contain the sum of the salaries associated with all of the players from the row.  This number must not exceed 50000
+- The “budget” column must contain the sum of the salaries associated with all of the players from the row and must not exceed 50000
 - The “projection” column must contain the sum of the projections associated with all of the players from the row. 
 - The “ratio” column must contain the sum of the ratios associated with all of the players from the row.
 - Each group of nine players must be a unique combination (not permutation)
