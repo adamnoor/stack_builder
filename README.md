@@ -3,7 +3,7 @@
 
 ## Introduction
 
-Stack Builder is a python application that reads a CSV file of unique players and creates a database of all of the unique combinations of nine players that are possible from that CSV file according to a set of validation rules.  Once the database is complete, the user will be able to filter a subset of these combinations and write this subset to a CSV file.
+Stack Builder is a python application that reads a CSV file of unique players and creates a database of all of the unique combinations of nine players that are possible from that CSV file according to a set of validation rules.  Once the database is complete, the user is able to filter a subset of these combinations as well as write this subset to a CSV file.
 
 
 
@@ -22,9 +22,9 @@ In order for the application to run, a file named players.csv must exist in the 
 
 ## Database
 
-When the user selects the button to create the database, a table named rosters must be created using the players.csv file following the following validation rules:
+When the user selects the button to create the database, a table named rosters is be created using the players.csv file following the following validation rules:
 
-- The schema for the rosters table must be:
+- The schema for the rosters table is:
   - qb: String
   - rb1: String
   - rb2: String
@@ -62,7 +62,7 @@ When the user selects the button to create the database, a table named rosters m
 
 ## Output CSV file
 
-The user is able to filter the rosters table once it exists by selecting a qb, and dst that must be in the grouping as well as any other players that should or shouldn’t be involved in the grouping.  The user should have the ability to see how many nine player groups the filter creates as well as the option to write the results to a CSV file that will go into a folder named output_files.
+The user is able to filter the rosters table once it exists by selecting a qb, and dst that must be in the grouping as well as any other players that should or shouldn’t be involved in the grouping.  The user has the ability to see how many nine player groups the filter creates as well as the option to write the results to a CSV file that will go into a folder named output_files.
 
 
 
