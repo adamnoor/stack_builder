@@ -38,6 +38,7 @@ When the user selects the button to create the database, a table named rosters i
   - projection: Float
   - ratio: Float
 
+- Each row must contain a unique combination (not permutation) of nine players
 - Each row must contain exactly nine unique players and must contain:
   - Exactly one player with the position of QB
   - Exactly one player with the position of DST
@@ -56,7 +57,6 @@ When the user selects the button to create the database, a table named rosters i
 - The “budget” column must contain the sum of the salaries associated with all of the players from the row and must not exceed 50000
 - The “projection” column must contain the sum of the projections associated with all of the players from the row. 
 - The “ratio” column must contain the sum of the ratios associated with all of the players from the row.
-- Each group of nine players must be a unique combination (not permutation)
 
 
 
